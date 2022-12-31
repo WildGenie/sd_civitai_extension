@@ -18,9 +18,8 @@ def log(message):
     print(f'Civitai: {message}')
 
 def parse_hypernetwork(string):
-    match = re.search(r'(.+)\(([^)]+)', string)
-    if match:
-        return {"name": match.group(1), "hash": match.group(2)}
+    if match := re.search(r'(.+)\(([^)]+)', string):
+        return {"name": match[1], "hash": match[2]}
     return {"name": "", "hash": ""}
 #endregion Utils
 
@@ -33,7 +32,7 @@ def req(endpoint, method='GET', data=None, params=None, headers=None):
     if data is not None:
         data = json.dumps(data)
     if not endpoint.startswith('/'):
-        endpoint = '/' + endpoint
+        endpoint = f'/{endpoint}'
     if params is None:
         params = {}
     response = requests.request(method, base_url+endpoint, data=data, params=params, headers=headers)
@@ -41,40 +40,36 @@ def req(endpoint, method='GET', data=None, params=None, headers=None):
 
 def get_models(query, creator, tag, type, page=1, page_size=20, sort='Most Downloaded', period='AllTime'):
     """Get a list of models from the Civitai API."""
-    response = req('/models', params={
-        'query': query,
-        'username': creator,
-        'tag': tag,
-        'type': type,
-        'sort': sort,
-        'period': period,
-        'page': page,
-        'pageSize': page_size,
-    })
-    return response
+    return req(
+        '/models',
+        params={
+            'query': query,
+            'username': creator,
+            'tag': tag,
+            'type': type,
+            'sort': sort,
+            'period': period,
+            'page': page,
+            'pageSize': page_size,
+        },
+    )
 
 def get_model_version(id):
     """Get a model version from the Civitai API."""
-    response = req('/model-versions/'+id)
-    return response
+    return req(f'/model-versions/{id}')
 
 def get_creators(query, page=1, page_size=20):
     """Get a list of creators from the Civitai API."""
-    response = req('/creators', params={
-        'query': query,
-        'page': page,
-        'pageSize': page_size
-    })
-    return response
+    return req(
+        '/creators',
+        params={'query': query, 'page': page, 'pageSize': page_size},
+    )
 
 def get_tags(query, page=1, page_size=20):
     """Get a list of tags from the Civitai API."""
-    response = req('/tags', params={
-        'query': query,
-        'page': page,
-        'pageSize': page_size
-    })
-    return response
+    return req(
+        '/tags', params={'query': query, 'page': page, 'pageSize': page_size}
+    )
 #endregion API
 
 #region Downloading
